@@ -1,0 +1,8 @@
+.idea
+.venv
+tags
+__pycache__
+.DS_Store
+setting.json
+cli.egg-info
+test
