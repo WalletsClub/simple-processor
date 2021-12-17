@@ -55,4 +55,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(host=MY_SERVER_HOST, port=MY_SERVER_PORT, use_reloader=True, debug=True)
+    app.run(host=MY_SERVER_HOST, port=MY_SERVER_PORT, use_reloader=True, debug=True, ssl_context='adhoc')
