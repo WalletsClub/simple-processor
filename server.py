@@ -34,8 +34,9 @@ def index():
         request_body = request.get_data()
 
         received_message = json.loads(request_body)
+        scheme = received_message['AppHdr']['MsgDefIdr'][:8]
 
-        print(pointer('My server receive message:'))
+        print(pointer('My server receive message: ') + highlight('({0})'.format(scheme)))
         print(j(received_message))
 
         print(pointer('Processing...'))

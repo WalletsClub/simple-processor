@@ -15,7 +15,7 @@ class Pacs008Processor(object):
     def __init__(self):
         pass
 
-    # @intercept(catch=Exception, handler=on_exception)
+    @intercept(catch=Exception, handler=on_exception)
     def process_pacs_008_from_net(self, pacs_008_message):
         """ process pacs.008 message from WalletsNet, if:
             (1) You approve the transaction, feedback with positive pacs.002
@@ -47,6 +47,6 @@ class Pacs008Processor(object):
         response = requests.post(cli_server_address, data=json.dumps(pacs_002_message), timeout=5, verify=False)
 
         if response.status_code == 200:
-            print(s(' Feedback succeeded'))
+            print(s('Ack pacs.002 for pacs.008 succeeded'))
         else:
-            print(f(' Feedback failed'))
+            print(f('Ack pacs.002 for pacs.008 failed'))
