@@ -26,6 +26,24 @@ class Pacs002Processor(object):
         else:
             pass
 
+    def process_pacs_002_for_pace_009_from_net(self, pacs_002_message):
+        """ Process pacs.002 message from WalletsNet:
+            (1) if RCVD: update your Inter-wallet transaction
+            (2) if RJCT: Do nothing and alert reason
+        """
+
+        e2e_id = pacs_002_message['Document']['FIToFIPmtStsRpt']['TxInfAndSts']['OrgnlInstrId']
+        status = pacs_002_message['Document']['FIToFIPmtStsRpt']['TxInfAndSts']['TxSts']
+        reason = deep_get(pacs_002_message, 'Document.FIToFIPmtStsRpt.TxInfAndSts.StsRsnInf.Rsn.Cd')
+
+        if status == 'RCVD':
+            print(s("Inter-wallet payment succeeded, e2e transaction ID is: {0}".format(e2e_id)))
+        elif status == 'RJCT':
+            print(f("Inter-wallet payment failed, e2e transaction ID is: {0}".format(e2e_id)))
+            print("Alert the reason: {0}".format(reason))
+        else:
+            pass
+
     def process_pacs_002_for_camt_056_from_net(self, pacs_002_message):
         """ Process pacs.002 message from WalletsNet:
             (1) if RCVD: tell your user that the refund request has been forwarded to the creditor FI
@@ -56,6 +74,8 @@ class Pacs002Processor(object):
 
             if ref_msg_scheme == 'pacs.008':
                 self.process_pacs_002_for_pace_008_from_net(pacs_002_message)
+            elif ref_msg_scheme == 'pacs.009':
+                self.process_pacs_002_for_pace_009_from_net(pacs_002_message)
             elif ref_msg_scheme == 'camt.056':
                 self.process_pacs_002_for_camt_056_from_net(pacs_002_message)
             else:

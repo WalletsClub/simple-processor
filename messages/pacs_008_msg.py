@@ -172,14 +172,18 @@ def build(**kwargs):
     return json.loads(content)
 
 
-def bake(debtor_pid, net_pid, creditor_pid, ccy='HKD'):
+def bake(debtor_pid, net_pid, creditor_pid, ccy='USD', amt=None):
     """ Bake a pacs.008 message """
 
     hdr_biz_msg_id = make_biz_message_identification(debtor_pid)
     doc_msg_id = make_instruction_identification(debtor_pid)
     doc_e2e_msg_id = make_e2e_identification(debtor_pid)
-    # random 1 ~ 100 amount
-    money = Money(round(random.uniform(1, 10), 2), ccy)
+
+    if amt is None:
+        # random 1 ~ 10 amount
+        money = Money(round(random.uniform(1, 10), 2), ccy)
+    else:
+        money = Money(abs(amt), ccy)
 
     fake = Faker()
 

@@ -62,6 +62,11 @@ def template():
                 "PmtInf": [
                     {
                         "PmtInfId": "${Doc_PmtInf_PmtInfId}",
+                        "PmtTpInf": {
+                            "CtgyPurp": {
+                                "Cd": "${CtgyPurp_Cd}"
+                            }
+                        },
                         "PmtMtd": "TRF",
                         "ReqdExctnDt": "${Doc_PmtInf_ReqdExctnDt}",
                         "Dbtr": {
@@ -91,17 +96,17 @@ def template():
                                 },
                                 "PmtTpInf": {
                                     "SvcLvl": {
-                                        "Cd": ""
+                                        "Cd": "SDVA"
                                     },
                                     "LclInstrm": {
-                                        "Prtry": ""
+                                        "Prtry": "BUSINESS"
                                     }
                                 },
                                 "Amt": {
                                     "InstdAmt": "${Doc_InstdAmt}",
                                     "Ccy": "${Doc_Ccy}"
                                 },
-                                "ChrgBr": "DEBT",
+                                "ChrgBr": "SLEV",
                                 "CdtrAgt": {
                                     "FinInstnId": {
                                         "ClrSysMmbId": {
@@ -121,7 +126,6 @@ def template():
                                         }
                                     }
                                 },
-                                "RltdRmtInf": [],
                                 "RmtInf": {
                                     "Ustrd": "This is a message from creditor"
                                 }
@@ -144,14 +148,18 @@ def build(**kwargs):
     return json.loads(content)
 
 
-def bake(creditor_pid, net_pid, debtor_pid, ccy='HKD'):
+def bake(creditor_pid, net_pid, debtor_pid, ccy='USD', amt=None):
     """ Bake a pain.013 message """
 
     hdr_biz_msg_id = make_biz_message_identification(debtor_pid)
     doc_msg_id = make_instruction_identification(debtor_pid)
     doc_e2e_msg_id = make_e2e_identification(debtor_pid)
-    # random 1 ~ 100 amount
-    money = Money(round(random.uniform(1, 100), 2), ccy)
+
+    if amt is None:
+        # random 1 ~ 10 amount
+        money = Money(round(random.uniform(1, 10), 2), ccy)
+    else:
+        money = Money(abs(amt), ccy)
 
     fake = Faker()
 
@@ -164,6 +172,7 @@ def bake(creditor_pid, net_pid, debtor_pid, ccy='HKD'):
         'Doc_GrpHdr_CreDtTm': str(datetime.now().astimezone(None).isoformat()),
         'Doc_GrpHdr_CtrlSum': str(money.amount),
         'Doc_GrpHdr_InitgPty_Id': creditor_pid,
+        'CtgyPurp_Cd': 'RQTP',
         'Doc_PmtInf_PmtInfId': doc_e2e_msg_id,
         'Doc_PmtInf_ReqdExctnDt': str(datetime.now().strftime('%Y-%m-%d')),
         'Doc_Dbtr_Nm': fake.name(),
@@ -179,5 +188,24 @@ def bake(creditor_pid, net_pid, debtor_pid, ccy='HKD'):
     }
 
     message = build(**kwargs)
+
+    return message
+
+
+def bake_rtp(creditor_pid, net_pid, debtor_pid, ccy='USD', amt=None):
+    """ bake RtP Message """
+    message = bake(creditor_pid, net_pid, debtor_pid, ccy, amt)
+    message['Document']['CdtrPmtActvtnReq']['PmtInf'][0]['PmtTpInf']['CtgyPurp']['Cd'] = 'RQTP'
+
+    return message
+
+
+def bake_rff(creditor_pid, net_pid, debtor_pid, ccy='USD', amt=None):
+    """ bake RfF Message """
+    message = bake(creditor_pid, net_pid, debtor_pid, ccy, amt)
+    message['Document']['CdtrPmtActvtnReq']['PmtInf'][0]['PmtTpInf']['CtgyPurp']['Cd'] = 'RQFF'
+    message['Document']['CdtrPmtActvtnReq']['PmtInf'][0]['Dbtr']['Nm'] = debtor_pid[:4]
+    message['Document']['CdtrPmtActvtnReq']['PmtInf'][0]['CdtTrfTx'][0]['Cdtr']['Nm'] = creditor_pid[:4]
+    message['Document']['CdtrPmtActvtnReq']['PmtInf'][0]['CdtTrfTx'][0]['RmtInf']['Ustrd'] = 'Request for fee'
 
     return message

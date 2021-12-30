@@ -1,7 +1,8 @@
 # -*- coding:utf-8 -*-
 
-my_pid = 'XPAYHKHHXXX'
+my_pid = 'RPAYUSUSXXX'
 net_pid = 'WCSMHKHKXXX'
+cp_pid = 'EMTRHKDDXXX'
 cli_server_address = 'https://localhost:12222/outbox'
 
 MY_SERVER_HOST = 'localhost'

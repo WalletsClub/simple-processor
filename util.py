@@ -65,6 +65,14 @@ def f(text):
         return text
 
 
+def i(text):
+    """ return info text """
+    try:
+        return colored('[i] ', 'cyan') + text
+    except:
+        return text
+
+
 def w(text):
     """ return warning text """
     try:
@@ -97,3 +105,7 @@ def border(text):
         return output
     except:
         return text
+
+
+if __name__ == '__main__':
+    print(colored('[i] ', 'cyan') + 'heehhehehhe')
